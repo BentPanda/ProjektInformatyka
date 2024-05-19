@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Audyt Bezpieczeństwa</title>
+    <link rel="stylesheet" href="./static/index.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Audyt Bezpieczeństwa</h1>
+      <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".py" class="file-input" />
+        <input type="submit" value="Prześlij" class="submit-btn" />
+      </form>
+      {% if issues is not none %} {% if issues %}
+      <h2>Audit Results:</h2>
+      {% for issue in issues %}
+      <div class="issue">
+        <p><strong>File:</strong> {{ issue.filename }}</p>
+        <p><strong>Description:</strong> {{ issue.issue_text }}</p>
+        <p>
+          <strong>Line Range:</strong> {{ issue.line_range[0] }} - {{
+          issue.line_range[-1] }}
+        </p>
+        <p><strong>Severity:</strong> {{ issue.issue_severity }}</p>
+        <p><strong>Confidence:</strong> {{ issue.issue_confidence }}</p>
+        <p>
+          <strong>CWE Link:</strong>
+          <a href="{{ issue.issue_cwe_link }}">{{ issue.issue_cwe_link }}</a>
+        </p>
+        <p>
+          <strong>More Info:</strong>
+          <a href="{{ issue.more_info }}">{{ issue.more_info }}</a>
+        </p>
+        <pre>{{ issue.code }}</pre>
+      </div>
+      {% endfor %} {% else %}
+      <p>No security issues found.</p>
+      {% endif %} {% endif %}
+    </div>
+  </body>
+</html>

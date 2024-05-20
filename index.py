@@ -4,7 +4,7 @@ from flask import Flask, request, render_template, redirect, flash
 from werkzeug.utils import secure_filename
 import os
 
-UPLOAD_FOLDER = '/tmp'
+UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'py'}
 
 app = Flask(__name__)
@@ -63,4 +63,6 @@ def index():
     return render_template('index.html', issues=None)
 
 if __name__ == '__main__':
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
     app.run(debug=True)

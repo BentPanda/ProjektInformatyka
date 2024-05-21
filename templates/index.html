@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
   <head>
     <meta charset="UTF-8" />
     <title>Audyt Bezpieczeństwa</title>
@@ -9,33 +9,33 @@
     <div class="container">
       <h1>Audyt Bezpieczeństwa</h1>
       <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".py" class="file-input" />
+        <input type="file" name="plik" accept=".py" class="plik-input" />
         <input type="submit" value="Prześlij" class="submit-btn" />
       </form>
-      {% if issues is not none %} {% if issues %}
-      <h2>Audit Results:</h2>
-      {% for issue in issues %}
-      <div class="issue">
-        <p><strong>File:</strong> {{ issue.filename }}</p>
-        <p><strong>Description:</strong> {{ issue.issue_text }}</p>
+      {% if problemy is not none %} {% if problemy %}
+      <h2>Wyniki Audytu:</h2>
+      {% for problem in problemy %}
+      <div class="problem">
+        <p><strong>Plik:</strong> {{ problem.nazwa_pliku }}</p>
+        <p><strong>Opis:</strong> {{ problem.opis_problemu }}</p>
         <p>
-          <strong>Line Range:</strong> {{ issue.line_range[0] }} - {{
-          issue.line_range[-1] }}
+          <strong>Zakres Linii:</strong> {{ problem.zakres_linii[0] }} - {{
+          problem.zakres_linii[-1] }}
         </p>
-        <p><strong>Severity:</strong> {{ issue.issue_severity }}</p>
-        <p><strong>Confidence:</strong> {{ issue.issue_confidence }}</p>
+        <p><strong>Istotność:</strong> {{ problem.istotnosc }}</p>
+        <p><strong>Pewność:</strong> {{ problem.pewnosc }}</p>
         <p>
-          <strong>CWE Link:</strong>
-          <a href="{{ issue.issue_cwe_link }}">{{ issue.issue_cwe_link }}</a>
+          <strong>Link CWE:</strong>
+          <a href="{{ problem.link_cwe }}">{{ problem.link_cwe }}</a>
         </p>
         <p>
-          <strong>More Info:</strong>
-          <a href="{{ issue.more_info }}">{{ issue.more_info }}</a>
+          <strong>Więcej Info:</strong>
+          <a href="{{ problem.wiecej_info }}">{{ problem.wiecej_info }}</a>
         </p>
-        <pre>{{ issue.code }}</pre>
+        <pre>{{ problem.kod }}</pre>
       </div>
       {% endfor %} {% else %}
-      <p>No security issues found.</p>
+      <p>Nie znaleziono problemów bezpieczeństwa.</p>
       {% endif %} {% endif %}
     </div>
   </body>

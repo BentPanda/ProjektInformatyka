@@ -4,63 +4,63 @@ from flask import Flask, request, render_template, redirect, flash
 from werkzeug.utils import secure_filename
 import os
 
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = 'przeslane_pliki'
 ALLOWED_EXTENSIONS = {'py'}
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'
+app.secret_key = 'supersekretnyklucz'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def dozwolony_plik(nazwa_pliku):
+    return '.' in nazwa_pliku and nazwa_pliku.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def audit_security(file_path):
-    result = subprocess.run(['bandit', '-q', '-ll', '-f', 'json', file_path], capture_output=True, text=True)
+def sprawdz_bezpieczenstwo(sciezka_pliku):
+    wynik = subprocess.run(['bandit', '-q', '-ll', '-f', 'json', sciezka_pliku], capture_output=True, text=True)
     
-    if result.returncode != 0:
+    if wynik.returncode != 0:
         try:
-            parsed_result = json.loads(result.stdout)
-            if parsed_result['results']:
-                issues = []
-                for issue in parsed_result['results']:
-                    issues.append({
-                        'filename': issue['filename'],
-                        'issue_text': issue['issue_text'],
-                        'line_range': issue['line_range'],
-                        'issue_severity': issue['issue_severity'],
-                        'issue_confidence': issue['issue_confidence'],
-                        'issue_cwe_link': issue['issue_cwe']['link'],
-                        'more_info': issue['more_info'],
-                        'code': issue['code'].replace('\\n', '\n')
+            wynik_json = json.loads(wynik.stdout)
+            if wynik_json['results']:
+                problemy = []
+                for problem in wynik_json['results']:
+                    problemy.append({
+                        'nazwa_pliku': problem['filename'],
+                        'opis_problemu': problem['issue_text'],
+                        'zakres_linii': problem['line_range'],
+                        'istotnosc': problem['issue_severity'],
+                        'pewnosc': problem['issue_confidence'],
+                        'link_cwe': problem['issue_cwe']['link'],
+                        'wiecej_info': problem['more_info'],
+                        'kod': problem['code'].replace('\\n', '\n')
                     })
-                return issues
+                return problemy
             else:
                 return []
         except json.JSONDecodeError:
-            return "JSONDecodeError"
+            return "BladJSON"
     else:
         return []
 
 @app.route('/', methods=['GET', 'POST'])
-def index():
+def indeks():
     if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part')
+        if 'plik' not in request.files:
+            flash('Brak pliku')
             return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
+        plik = request.files['plik']
+        if plik.filename == '':
+            flash('Nie wybrano pliku')
             return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
-            issues = audit_security(file_path)
-            if issues == "JSONDecodeError":
-                flash('Failed to process the file as JSON.')
+        if plik and dozwolony_plik(plik.filename):
+            nazwa_pliku = secure_filename(plik.filename)
+            sciezka_pliku = os.path.join(app.config['UPLOAD_FOLDER'], nazwa_pliku)
+            plik.save(sciezka_pliku)
+            problemy = sprawdz_bezpieczenstwo(sciezka_pliku)
+            if problemy == "BladJSON":
+                flash('Nie udało się przetworzyć pliku jako JSON.')
                 return redirect(request.url)
-            return render_template('index.html', issues=issues)
-    return render_template('index.html', issues=None)
+            return render_template('index.html', problemy=problemy)
+    return render_template('index.html', problemy=None)
 
 if __name__ == '__main__':
     if not os.path.exists(UPLOAD_FOLDER):

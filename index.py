@@ -8,7 +8,7 @@ UPLOAD_FOLDER = 'przeslane_pliki'
 ALLOWED_EXTENSIONS = {'py'}
 
 app = Flask(__name__)
-app.secret_key = 'supersekretnyklucz'
+app.secret_key = 'MatteoJestSuperGosciem'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def dozwolony_plik(nazwa_pliku):
